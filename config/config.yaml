@@ -1,0 +1,296 @@
+# ============================================================================
+# BANKING AML FRAUD DETECTION - CONFIGURATION FILE
+# ============================================================================
+# This file contains all configuration settings for our ML pipeline.
+# Think of it as the "control panel" for the system!
+#
+# WHY USE A CONFIG FILE?
+# ----------------------
+# 1. Easy to modify settings without changing code
+# 2. Different configs for dev/test/production
+# 3. Clear documentation of all parameters
+# 4. Reproducibility (track exact settings used)
+#
+# ============================================================================
+
+# Application Settings
+# --------------------
+app:
+  name: "Banking_AML_Fraud_Detection"
+  version: "1.0.0"
+  description: "Multi-class classification for AML fraud detection"
+  author: "Your Name"
+
+# Data Configuration
+# ------------------
+data:
+  # Data generation
+  generation:
+    num_customers: 1000
+    num_transactions: 50000
+    fraud_ratio: 0.20
+    random_seed: 42
+
+  # Data paths
+  paths:
+    raw_data: "data/raw/transactions.parquet"
+    processed_data: "data/processed/transactions_processed.parquet"
+    customers: "data/raw/customers.csv"
+    metadata: "data/raw/metadata.json"
+
+  # Data splitting ratios
+  split:
+    train_ratio: 0.70
+    validation_ratio: 0.15
+    test_ratio: 0.15
+    random_seed: 42
+
+# Feature Engineering Configuration
+# ----------------------------------
+features:
+  # Text processing
+  text:
+    max_features: 100  # TF-IDF feature count
+    min_df: 2  # Minimum document frequency
+    ngram_range: [1, 2]  # Unigrams and bigrams
+
+  # Categorical encoding
+  categorical:
+    handle_invalid: "keep"  # How to handle unknown categories
+
+  # Numerical scaling
+  numerical:
+    with_mean: true
+    with_std: true
+
+# Model Training Configuration
+# -----------------------------
+models:
+  # Logistic Regression
+  logistic_regression:
+    enabled: true
+    max_iter: 100
+    reg_param: 0.01
+    elastic_net_param: 0.0
+
+  # Decision Tree
+  decision_tree:
+    enabled: true
+    max_depth: 10
+    min_instances_per_node: 10
+
+  # Random Forest
+  random_forest:
+    enabled: true
+    num_trees: 100
+    max_depth: 10
+    min_instances_per_node: 5
+    subsampling_rate: 0.8
+
+  # Gradient Boosted Trees
+  gradient_boosted_trees:
+    enabled: true
+    max_iter: 50
+    max_depth: 5
+    step_size: 0.1
+
+  # Naive Bayes
+  naive_bayes:
+    enabled: true
+    smoothing: 1.0
+
+  # Linear SVC
+  linear_svc:
+    enabled: true
+    max_iter: 100
+    reg_param: 0.01
+
+  # Neural Network
+  neural_network:
+    enabled: true
+    hidden_layers: [128, 64]  # Architecture
+    max_iter: 100
+    step_size: 0.03
+
+# Evaluation Configuration
+# -------------------------
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - confusion_matrix
+
+  # Metrics to prioritize (for model selection)
+  primary_metric: "f1_score"
+
+  # Thresholds for alerts
+  thresholds:
+    min_accuracy: 0.70
+    min_recall: 0.70  # Critical for fraud detection!
+    min_f1_score: 0.65
+
+# MLOps Configuration
+# -------------------
+mlops:
+  # Model versioning
+  versioning:
+    enabled: true
+    strategy: "timestamp"  # or "semantic"
+
+  # Experiment tracking
+  tracking:
+    enabled: true
+    backend: "mlflow"  # Could be mlflow, wandb, etc.
+    experiment_name: "aml_fraud_detection"
+
+  # Model registry
+  registry:
+    enabled: true
+    path: "data/models/"
+
+  # Logging
+  logging:
+    level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    file: "logs/pipeline.log"
+
+# Spark Configuration
+# -------------------
+spark:
+  app_name: "Banking_AML_Detection"
+  master: "local[*]"  # Use all available cores
+  config:
+    "spark.driver.memory": "4g"
+    "spark.executor.memory": "4g"
+    "spark.sql.shuffle.partitions": "10"
+    "spark.default.parallelism": "10"
+    "spark.sql.adaptive.enabled": "true"
+
+# Deployment Configuration
+# -------------------------
+deployment:
+  # Model serving
+  serving:
+    enabled: false
+    host: "0.0.0.0"
+    port: 8000
+    workers: 4
+
+  # Batch prediction
+  batch:
+    enabled: true
+    chunk_size: 10000
+
+  # Real-time prediction
+  realtime:
+    enabled: false
+    max_latency_ms: 100
+
+# Monitoring Configuration
+# -------------------------
+monitoring:
+  # Performance monitoring
+  performance:
+    enabled: true
+    log_interval_seconds: 60
+
+  # Data drift detection
+  drift_detection:
+    enabled: true
+    reference_window_days: 30
+    check_interval_days: 7
+
+  # Alerting
+  alerts:
+    enabled: true
+    channels:
+      - email
+      - slack
+    thresholds:
+      accuracy_drop: 0.05
+      latency_increase: 2.0
+
+# Security & Compliance
+# ---------------------
+security:
+  # Data privacy
+  privacy:
+    anonymize_pii: true
+    retention_days: 90
+
+  # Audit logging
+  audit:
+    enabled: true
+    log_predictions: true
+    log_features: false  # Too verbose for production
+
+  # Access control
+  access:
+    require_authentication: true
+    role_based: true
+
+# Environment-Specific Overrides
+# -------------------------------
+# You can have different configs for different environments
+
+development:
+  data:
+    generation:
+      num_transactions: 10000  # Smaller for dev
+  spark:
+    config:
+      "spark.driver.memory": "2g"
+
+production:
+  data:
+    generation:
+      num_transactions: 1000000  # Much larger
+  spark:
+    master: "spark://production-cluster:7077"
+    config:
+      "spark.driver.memory": "16g"
+      "spark.executor.memory": "16g"
+
+testing:
+  data:
+    generation:
+      num_transactions: 1000  # Tiny for tests
+  models:
+    random_forest:
+      num_trees: 10  # Faster for tests
+
+# ============================================================================
+# NOTES FOR BEGINNERS
+# ============================================================================
+#
+# What is YAML?
+# -------------
+# YAML is a human-friendly data format. It uses indentation (like Python)
+# to show structure. It's easier to read than JSON or XML.
+#
+# How to use this file:
+# --------------------
+# 1. Load it in Python:
+#    import yaml
+#    with open('config/config.yaml') as f:
+#        config = yaml.safe_load(f)
+#
+# 2. Access values:
+#    num_trees = config['models']['random_forest']['num_trees']
+#
+# 3. Modify for your needs:
+#    - Increase num_transactions for more data
+#    - Tune model parameters
+#    - Adjust memory based on your system
+#
+# Tips:
+# -----
+# - Comments start with #
+# - Indentation matters (use spaces, not tabs!)
+# - Strings can be quoted or unquoted
+# - Lists use - prefix
+# - Dictionaries use key: value
+#
+# ============================================================================

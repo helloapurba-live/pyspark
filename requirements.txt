@@ -1,0 +1,122 @@
+# ============================================================================
+# BANKING AML FRAUD DETECTION - REQUIREMENTS
+# ============================================================================
+# This file lists all the Python packages we need for our project.
+# Think of it like a shopping list for software!
+#
+# To install everything: pip install -r requirements.txt
+# ============================================================================
+
+# Core Data Processing & Spark
+# ----------------------------------------------------------------------------
+# PySpark: The star of our show! Handles big data processing
+pyspark==3.5.0
+
+# Pandas: Like Excel but for programmers (easier data manipulation)
+pandas==2.1.3
+
+# NumPy: Mathematical operations and array handling
+numpy==1.24.3
+
+# Machine Learning & Deep Learning
+# ----------------------------------------------------------------------------
+# Scikit-learn: Traditional ML algorithms (backup for some operations)
+scikit-learn==1.3.2
+
+# XGBoost: One of the most powerful ML algorithms for structured data
+# xgboost==2.0.3  # Uncomment if you want to add XGBoost
+
+# MLOps & Experiment Tracking
+# ----------------------------------------------------------------------------
+# MLflow: Track experiments, save models, compare results
+mlflow==2.9.2
+
+# Data Visualization
+# ----------------------------------------------------------------------------
+# Matplotlib: Create charts and graphs
+matplotlib==3.8.2
+
+# Seaborn: Makes beautiful statistical visualizations
+seaborn==0.13.0
+
+# Plotly: Interactive visualizations
+plotly==5.18.0
+
+# Natural Language Processing (for text features)
+# ----------------------------------------------------------------------------
+# NLTK: Natural Language Toolkit for text processing
+nltk==3.8.1
+
+# Text Processing
+# ----------------------------------------------------------------------------
+# Unidecode: Handle special characters in text
+unidecode==1.3.7
+
+# Utilities
+# ----------------------------------------------------------------------------
+# Python-dateutil: Better date/time handling
+python-dateutil==2.8.2
+
+# PyYAML: Read configuration files
+PyYAML==6.0.1
+
+# Joblib: Save and load Python objects efficiently
+joblib==1.3.2
+
+# Tqdm: Progress bars (so you know your code is working!)
+tqdm==4.66.1
+
+# Development & Testing
+# ----------------------------------------------------------------------------
+# Pytest: Testing framework (always test your code!)
+pytest==7.4.3
+
+# Black: Auto-format code to look professional
+black==23.12.1
+
+# Flake8: Check code quality
+flake8==7.0.0
+
+# Jupyter: Interactive notebooks for exploration
+# ----------------------------------------------------------------------------
+jupyter==1.0.0
+notebook==7.0.6
+ipywidgets==8.1.1
+
+# ============================================================================
+# INSTALLATION NOTES FOR BEGINNERS
+# ============================================================================
+#
+# What do these packages do?
+# ---------------------------
+#
+# 1. PySpark: Imagine you have a million transactions. Regular Python would
+#    struggle, but PySpark can split the work across multiple computers!
+#
+# 2. MLflow: Like a lab notebook. It remembers every experiment you run,
+#    so you can compare "which model performed best?"
+#
+# 3. Scikit-learn: Contains many classic ML algorithms. We use it for
+#    preprocessing and as a reference.
+#
+# 4. Matplotlib/Seaborn: Turn boring numbers into beautiful charts that
+#    help you understand what's happening.
+#
+# 5. NLTK: Helps us understand text. For example, it knows that "payment"
+#    and "paying" are related words.
+#
+# How to install?
+# ---------------
+# Open your terminal and run:
+#   pip install -r requirements.txt
+#
+# If you get errors:
+# ------------------
+# 1. Make sure Python 3.8+ is installed: python --version
+# 2. Upgrade pip: pip install --upgrade pip
+# 3. Use a virtual environment (recommended!):
+#    python -m venv venv
+#    source venv/bin/activate  # On Windows: venv\Scripts\activate
+#    pip install -r requirements.txt
+#
+# ============================================================================
