@@ -1,0 +1,252 @@
+# ==============================================================================
+# AML FRAUD DETECTION - CONFIGURATION FILE
+# ==============================================================================
+# This file controls all settings for our anti-money laundering fraud detection
+# system. Think of it as the "master control panel" for the entire project.
+# ==============================================================================
+
+project:
+  name: "aml_fraud_detection"
+  version: "1.0.0"
+  description: "End-to-end AML fraud detection using PySpark 4 with MLOps"
+
+# ------------------------------------------------------------------------------
+# DATA GENERATION SETTINGS
+# ------------------------------------------------------------------------------
+# These settings control how we create our synthetic banking transaction data
+data:
+  num_transactions: 100000  # Total number of transactions to generate
+  fraud_ratio: 0.15          # 15% of transactions will be suspicious (realistic for AML)
+  num_customers: 5000        # Number of unique customers
+  num_accounts: 8000         # Number of unique bank accounts
+  date_range_days: 365       # Generate data for 1 year
+
+  # File paths
+  raw_data_path: "data/raw_transactions.parquet"
+  processed_data_path: "data/processed_transactions.parquet"
+  features_path: "data/features.parquet"
+
+# ------------------------------------------------------------------------------
+# FEATURE ENGINEERING SETTINGS
+# ------------------------------------------------------------------------------
+# Controls how we extract features from raw data
+features:
+  # Text features (from transaction descriptions)
+  text:
+    max_features: 100        # Number of text features to extract (using TF-IDF)
+    ngram_range: [1, 2]      # Use single words and word pairs
+    min_df: 5                # Ignore words that appear in fewer than 5 documents
+
+  # Numerical features
+  numerical:
+    - transaction_amount
+    - account_balance
+    - transaction_hour
+    - transaction_day_of_week
+    - days_since_account_created
+    - transaction_frequency_24h
+    - average_transaction_amount_30d
+
+  # Categorical features
+  categorical:
+    - transaction_type
+    - country
+    - channel
+    - customer_risk_level
+
+# ------------------------------------------------------------------------------
+# CLUSTERING ALGORITHMS CONFIGURATION
+# ------------------------------------------------------------------------------
+# We'll apply 10+ different clustering algorithms to find fraud patterns
+algorithms:
+  # Algorithm 1: K-Means Clustering
+  kmeans:
+    enabled: true
+    k: [5, 10, 15]           # Try different numbers of clusters
+    max_iter: 100
+    seed: 42
+
+  # Algorithm 2: Bisecting K-Means
+  bisecting_kmeans:
+    enabled: true
+    k: [5, 10, 15]
+    max_iter: 100
+    seed: 42
+
+  # Algorithm 3: Gaussian Mixture Model
+  gmm:
+    enabled: true
+    k: [5, 10, 15]
+    max_iter: 100
+    seed: 42
+
+  # Algorithm 4: LDA (Latent Dirichlet Allocation) - for text patterns
+  lda:
+    enabled: true
+    k: [5, 10]
+    max_iter: 100
+
+  # Algorithm 5: PCA-based clustering
+  pca_clustering:
+    enabled: true
+    n_components: [10, 20, 30]
+
+  # Algorithm 6: Locality Sensitive Hashing (LSH) for anomaly detection
+  lsh:
+    enabled: true
+    num_hash_tables: 3
+
+  # Algorithm 7: Statistical anomaly detection (Z-score based)
+  zscore_anomaly:
+    enabled: true
+    threshold: 3.0
+
+  # Algorithm 8: Isolation Forest-like approach (using random projections)
+  random_projection_anomaly:
+    enabled: true
+    n_projections: 10
+
+  # Algorithm 9: Network-based clustering (transaction graph)
+  graph_clustering:
+    enabled: true
+
+  # Algorithm 10: Ensemble clustering (combining multiple methods)
+  ensemble:
+    enabled: true
+    methods: ["kmeans", "gmm", "bisecting_kmeans"]
+
+# ------------------------------------------------------------------------------
+# MODEL EVALUATION SETTINGS
+# ------------------------------------------------------------------------------
+evaluation:
+  metrics:
+    - silhouette_score      # Measures how well-separated clusters are
+    - davies_bouldin_index  # Lower is better (cluster separation)
+    - calinski_harabasz_score  # Higher is better (cluster density)
+    - inertia               # Within-cluster sum of squares
+
+  validation:
+    test_split: 0.2         # 20% of data for testing
+    cv_folds: 5             # 5-fold cross-validation
+
+# ------------------------------------------------------------------------------
+# MLOPS SETTINGS
+# ------------------------------------------------------------------------------
+mlops:
+  # Experiment tracking
+  experiment_tracking:
+    enabled: true
+    backend: "local"        # Can be "mlflow", "wandb", etc.
+    experiment_name: "aml_fraud_clustering"
+
+  # Model versioning
+  model_registry:
+    enabled: true
+    registry_path: "models/registry"
+
+  # Logging
+  logging:
+    level: "INFO"
+    log_file: "logs/aml_fraud_detection.log"
+
+  # Monitoring
+  monitoring:
+    enabled: true
+    drift_detection: true
+    drift_threshold: 0.1
+
+  # Model serving
+  serving:
+    enabled: false
+    endpoint: "http://localhost:8080/predict"
+
+# ------------------------------------------------------------------------------
+# SPARK CONFIGURATION
+# ------------------------------------------------------------------------------
+spark:
+  app_name: "AML_Fraud_Detection"
+  master: "local[*]"        # Use all available cores
+  config:
+    spark.driver.memory: "4g"
+    spark.executor.memory: "4g"
+    spark.sql.shuffle.partitions: "200"
+    spark.default.parallelism: "200"
+
+  # Optimization settings
+  optimization:
+    cache_intermediate: true
+    broadcast_threshold: "10MB"
+    adaptive_execution: true
+
+# ------------------------------------------------------------------------------
+# PIPELINE SETTINGS
+# ------------------------------------------------------------------------------
+pipeline:
+  stages:
+    - data_generation
+    - data_validation
+    - feature_engineering
+    - feature_scaling
+    - clustering
+    - evaluation
+    - model_selection
+    - monitoring
+
+  checkpointing:
+    enabled: true
+    checkpoint_dir: "data/checkpoints"
+
+  parallelization:
+    max_parallel_models: 3  # Train up to 3 models in parallel
+
+# ------------------------------------------------------------------------------
+# AML-SPECIFIC RULES AND THRESHOLDS
+# ------------------------------------------------------------------------------
+aml_rules:
+  # Transaction patterns that indicate potential money laundering
+  suspicious_patterns:
+    # High-value transactions
+    high_value_threshold: 10000
+
+    # Rapid movement of funds (structuring)
+    rapid_transactions_count: 5
+    rapid_transactions_window_hours: 24
+
+    # Round number transactions (common in money laundering)
+    round_number_threshold: 1000
+
+    # Cross-border transactions
+    cross_border_risk_countries: ["XX", "YY", "ZZ"]  # High-risk countries
+
+    # Unusual hours
+    unusual_hours: [0, 1, 2, 3, 4, 5]  # Late night transactions
+
+  # Customer risk scoring
+  risk_levels:
+    low: 0.3
+    medium: 0.6
+    high: 1.0
+
+  # Alert thresholds
+  alert_thresholds:
+    critical: 0.9    # Definitely investigate
+    high: 0.7        # Likely suspicious
+    medium: 0.5      # Monitor closely
+    low: 0.3         # Normal activity
+
+# ------------------------------------------------------------------------------
+# REPORTING AND VISUALIZATION
+# ------------------------------------------------------------------------------
+reporting:
+  generate_reports: true
+  report_formats: ["html", "pdf"]
+  include_visualizations: true
+  output_dir: "results/reports"
+
+  visualizations:
+    - cluster_distribution
+    - fraud_score_distribution
+    - feature_importance
+    - confusion_matrix
+    - roc_curve
+    - transaction_network_graph
