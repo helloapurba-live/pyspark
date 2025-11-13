@@ -1,0 +1,55 @@
+# =============================================================================
+# REQUIREMENTS FOR AML FRAUD DETECTION PIPELINE
+# =============================================================================
+# This file lists all the Python packages we need for our project
+# Think of it as a shopping list for our ML project!
+
+# Core PySpark and Big Data Processing
+pyspark==3.5.0              # Main framework for distributed data processing
+py4j==0.10.9.7              # Helps Python talk to Java (PySpark uses Java underneath)
+
+# Machine Learning Libraries
+scikit-learn==1.3.2         # Traditional ML algorithms
+xgboost==2.0.3              # Gradient boosting (very powerful for fraud detection!)
+lightgbm==4.1.0             # Another gradient boosting library (faster than XGBoost)
+catboost==1.2.2             # Handles categorical data automatically
+
+# Natural Language Processing (for text data analysis)
+nltk==3.8.1                 # Natural Language Toolkit for text processing
+textblob==0.17.1            # Simple text analysis
+transformers==4.35.2        # For advanced text models (BERT, etc.)
+sentence-transformers==2.2.2 # Convert text to numerical vectors
+
+# MLOps and Experiment Tracking
+mlflow==2.9.2               # Track experiments, save models, deploy
+wandb==0.16.1               # Weights & Biases for experiment visualization
+tensorboard==2.15.1         # Visualize training metrics
+
+# Data Processing and Analysis
+pandas==2.1.4               # Data manipulation (easier than pure PySpark sometimes)
+numpy==1.26.2               # Numerical operations
+faker==20.1.0               # Generate realistic fake data for our toy example
+
+# Visualization
+matplotlib==3.8.2           # Basic plotting
+seaborn==0.13.0             # Beautiful statistical plots
+plotly==5.18.0              # Interactive plots
+
+# Model Interpretability
+shap==0.44.0                # Explain model predictions (VERY important for AML!)
+lime==0.2.0.1               # Another explanation tool
+
+# Utilities
+python-dotenv==1.0.0        # Manage environment variables
+pyyaml==6.0.1               # Read configuration files
+click==8.1.7                # Create command-line interfaces
+tqdm==4.66.1                # Progress bars (see what's happening!)
+joblib==1.3.2               # Save/load models efficiently
+
+# Data Quality and Monitoring
+great-expectations==0.18.8  # Data validation
+evidently==0.4.11           # Monitor model and data drift
+
+# Testing
+pytest==7.4.3               # Write and run tests
+pytest-spark==0.6.0         # Test PySpark code

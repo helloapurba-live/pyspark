@@ -1,0 +1,289 @@
+# =============================================================================
+# AML FRAUD DETECTION PIPELINE CONFIGURATION
+# =============================================================================
+# This configuration file is like a control panel for our entire ML pipeline
+# You can change these settings without modifying the code!
+
+# PROJECT SETTINGS
+# ----------------
+project:
+  name: "aml_fraud_detection"
+  version: "1.0.0"
+  description: "End-to-end MLOps pipeline for banking AML fraud detection"
+  author: "Your Name"
+
+# DATA GENERATION SETTINGS
+# -------------------------
+# This controls how we create our toy banking transaction dataset
+data:
+  num_transactions: 100000        # Total number of transactions to generate
+  fraud_ratio: 0.02               # 2% fraud rate (realistic for banking)
+  train_split: 0.7                # 70% for training
+  validation_split: 0.15          # 15% for validation
+  test_split: 0.15                # 15% for testing
+  random_seed: 42                 # For reproducibility (same random data each time)
+
+  # Features we'll create
+  features:
+    tabular:
+      - transaction_amount
+      - account_age_days
+      - num_transactions_24h
+      - avg_transaction_amount
+      - transaction_hour
+      - transaction_day_of_week
+      - source_country
+      - destination_country
+      - account_type
+      - customer_age
+      - credit_score
+      - num_failed_logins
+
+    text:
+      - transaction_description    # E.g., "Wire transfer to overseas account"
+      - merchant_category           # E.g., "Casino", "Charity", "Electronics"
+      - customer_notes              # Any notes from customer
+
+# SPARK CONFIGURATION
+# -------------------
+spark:
+  app_name: "AML_Fraud_Detection_Pipeline"
+  master: "local[*]"              # Use all available CPU cores
+  executor_memory: "4g"           # Memory per executor
+  driver_memory: "4g"             # Memory for driver
+  max_result_size: "2g"
+
+  # Spark configuration for optimization
+  configs:
+    "spark.sql.shuffle.partitions": "100"
+    "spark.default.parallelism": "100"
+    "spark.sql.adaptive.enabled": "true"
+    "spark.serializer": "org.apache.spark.serializer.KryoSerializer"
+
+# FEATURE ENGINEERING
+# -------------------
+feature_engineering:
+  text_vectorization:
+    method: "tfidf"               # Options: tfidf, word2vec, bert
+    max_features: 100             # Maximum number of text features
+    min_df: 2                     # Minimum document frequency
+    max_df: 0.8                   # Maximum document frequency
+
+  scaling:
+    method: "standard"            # Options: standard, minmax, robust
+
+  encoding:
+    categorical_method: "onehot"  # Options: onehot, label, target
+
+  feature_selection:
+    enabled: true
+    method: "chi2"                # Options: chi2, mutual_info, lasso
+    k_best: 50                    # Select top 50 features
+
+# MODEL ALGORITHMS
+# ----------------
+# We'll implement all these algorithms!
+models:
+  # 1. Logistic Regression (Simple but powerful baseline)
+  logistic_regression:
+    enabled: true
+    params:
+      maxIter: 100
+      regParam: [0.01, 0.1, 1.0]  # Regularization strengths to try
+      elasticNetParam: [0.0, 0.5, 1.0]
+
+  # 2. Random Forest (Ensemble of decision trees)
+  random_forest:
+    enabled: true
+    params:
+      numTrees: [50, 100, 200]
+      maxDepth: [5, 10, 15]
+      minInstancesPerNode: [1, 5]
+
+  # 3. Gradient Boosted Trees (Sequential tree building)
+  gbt:
+    enabled: true
+    params:
+      maxIter: [50, 100]
+      maxDepth: [5, 10]
+      stepSize: [0.01, 0.1]
+
+  # 4. XGBoost (Popular gradient boosting implementation)
+  xgboost:
+    enabled: true
+    params:
+      max_depth: [3, 5, 7]
+      learning_rate: [0.01, 0.1, 0.3]
+      n_estimators: [100, 200]
+      subsample: [0.8, 1.0]
+
+  # 5. LightGBM (Fast gradient boosting)
+  lightgbm:
+    enabled: true
+    params:
+      num_leaves: [31, 50]
+      learning_rate: [0.01, 0.1]
+      n_estimators: [100, 200]
+
+  # 6. CatBoost (Handles categorical features well)
+  catboost:
+    enabled: true
+    params:
+      depth: [4, 6, 8]
+      learning_rate: [0.03, 0.1]
+      iterations: [100, 200]
+
+  # 7. Decision Tree (Simple interpretable model)
+  decision_tree:
+    enabled: true
+    params:
+      maxDepth: [5, 10, 15, 20]
+      minInstancesPerNode: [1, 5, 10]
+
+  # 8. Naive Bayes (Probabilistic classifier)
+  naive_bayes:
+    enabled: true
+    params:
+      smoothing: [0.5, 1.0, 2.0]
+
+  # 9. Linear SVM (Support Vector Machine)
+  linear_svm:
+    enabled: true
+    params:
+      maxIter: 100
+      regParam: [0.01, 0.1, 1.0]
+
+  # 10. Multilayer Perceptron (Neural Network)
+  mlp:
+    enabled: true
+    params:
+      layers: [[100, 50, 2], [200, 100, 50, 2]]
+      maxIter: 100
+      stepSize: [0.001, 0.01]
+
+  # 11. Stacking Ensemble (Combines multiple models)
+  stacking:
+    enabled: true
+    base_models: ["random_forest", "xgboost", "lightgbm"]
+    meta_model: "logistic_regression"
+
+  # 12. Voting Ensemble (Majority vote from multiple models)
+  voting:
+    enabled: true
+    models: ["random_forest", "xgboost", "gbt"]
+    voting_type: "soft"           # Options: hard, soft
+
+# HYPERPARAMETER TUNING
+# ----------------------
+hyperparameter_tuning:
+  method: "grid_search"           # Options: grid_search, random_search, bayesian
+  cv_folds: 3                     # 3-fold cross-validation
+  parallelism: 4                  # Run 4 models in parallel
+
+# EVALUATION METRICS
+# ------------------
+# For fraud detection, we care about catching fraudsters (recall)
+# But also not annoying legitimate customers (precision)
+evaluation:
+  primary_metric: "f1"            # Balance between precision and recall
+  metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1"
+    - "auc_roc"                   # Area Under ROC Curve
+    - "auc_pr"                    # Area Under Precision-Recall Curve
+    - "confusion_matrix"
+
+  threshold:
+    optimization: true            # Find best threshold for classification
+    metric: "f1"                  # Optimize threshold based on F1 score
+
+# MLOPS SETTINGS
+# --------------
+mlops:
+  experiment_tracking:
+    backend: "mlflow"             # Options: mlflow, wandb, tensorboard
+    uri: "file:./experiments"     # Where to save experiments
+    auto_log: true                # Automatically log everything
+
+  model_registry:
+    enabled: true
+    path: "./model_registry"
+    versioning: true              # Keep version history
+
+  logging:
+    level: "INFO"                 # Options: DEBUG, INFO, WARNING, ERROR
+    file: "./logs/pipeline.log"
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+  monitoring:
+    enabled: true
+    drift_detection:
+      enabled: true
+      method: "ks_test"           # Kolmogorov-Smirnov test
+      threshold: 0.05             # P-value threshold
+
+    performance_tracking:
+      enabled: true
+      alert_threshold:
+        f1_drop: 0.1              # Alert if F1 drops by 10%
+
+# MODEL DEPLOYMENT
+# ----------------
+deployment:
+  save_format: ["spark_ml", "onnx", "pickle"]
+  serving:
+    batch_size: 1000
+    timeout: 30                   # seconds
+
+  api:
+    enabled: false                # Set true to create REST API
+    host: "0.0.0.0"
+    port: 8080
+
+# MODEL INTERPRETABILITY
+# ----------------------
+# Very important for AML - regulators need to understand decisions!
+interpretability:
+  shap:
+    enabled: true
+    num_samples: 1000             # Number of samples for SHAP calculation
+
+  feature_importance:
+    enabled: true
+    plot: true
+
+  decision_rules:
+    enabled: true                 # Extract human-readable rules
+
+# DATA QUALITY
+# ------------
+data_quality:
+  validation:
+    enabled: true
+    checks:
+      - "null_check"
+      - "range_check"
+      - "distribution_check"
+
+  anomaly_detection:
+    enabled: true
+    method: "isolation_forest"
+
+# PIPELINE ORCHESTRATION
+# ----------------------
+pipeline:
+  stages:
+    - data_generation
+    - data_validation
+    - feature_engineering
+    - model_training
+    - model_evaluation
+    - model_selection
+    - model_deployment
+    - monitoring_setup
+
+  checkpointing:
+    enabled: true                 # Save intermediate results
+    path: "./data/checkpoints"
